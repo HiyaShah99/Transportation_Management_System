@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port & Cargo Logistics | TMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=3">
+    <script>const _appVersion = 3;</script>
+</head>
+<body>
+    <div class="app-container">
+        
+        <nav class="sidebar glass-panel">
+            <div class="logo">
+                <h1>PortTMS</h1>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-view="dashboard">
+                    Dashboard
+                </li>
+                <li data-view="book-cargo">
+                    Book Cargo
+                </li>
+                <li data-view="cargo-history">
+                    Cargo History
+                </li>
+                <li data-view="vessel-report">
+                    Vessel Reports
+                </li>
+                <li data-view="analytics">
+                    Analytics
+                </li>
+                <li data-view="admin">
+                    Admin
+                </li>
+            </ul>
+        </nav>
+
+        <main class="content-area">
+            <header class="top-header glass-panel">
+                <h2 id="page-title">Dashboard</h2>
+                <div class="user-profile">
+                    <div class="avatar">A</div>
+                    <span>Admin</span>
+                </div>
+            </header>
+
+            <div class="scroll-wrapper">
+
+                <section id="dashboard" class="view-section active">
+                    <div class="hero-card glass-panel">
+                        <div class="hero-content">
+                            <h3>Transportation Management System</h3>
+                            <p>Global Port & Cargo Logistics command center.</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions grid-layout">
+                        
+                        <div class="card glass-panel interactive-card">
+                            <h4>Next Available Voyage</h4>
+                            <form id="next-voyage-form" class="dynamic-form">
+                                <div class="input-group">
+                                    <input type="text" id="nv_origin" placeholder="Origin Port ID (e.g. P001)" required>
+                                </div>
+                                <div class="input-group">
+                                    <input type="text" id="nv_dest" placeholder="Destination Port ID (e.g. P002)" required>
+                                </div>
+                                <button type="submit" class="btn primary-btn">Find Voyage</button>
+                            </form>
+                            <div id="nv-result" class="result-box hidden"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="book-cargo" class="view-section">
+                    <div class="card glass-panel form-card">
+                        <h3>Create New Cargo Booking</h3>
+                        <form id="book-cargo-form" class="dynamic-form">
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label>Voyage ID</label>
+                                    <input type="number" id="bc_voyage_id" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Owner ID</label>
+                                    <input type="text" id="bc_owner_id" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label>Cargo Type</label>
+                                    <select id="bc_cargo_type" required>
+                                        <option value="Container">Container</option>
+                                        <option value="Dry Bulk">Dry Bulk</option>
+                                        <option value="Liquid Bulk">Liquid Bulk</option>
+                                        <option value="Break Bulk">Break Bulk</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label>Weight (Tonnes)</label>
+                                    <input type="number" step="0.01" id="bc_weight" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label>Origin Port ID</label>
+                                    <input type="text" id="bc_origin" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>Destination Port ID</label>
+                                    <input type="text" id="bc_dest" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn primary-btn large-btn">Book Cargo</button>
+                        </form>
+                        <div id="booking-alert" class="alert-box hidden"></div>
+                    </div>
+                </section>
+
+                <section id="cargo-history" class="view-section">
+                    <div class="card glass-panel interact-section">
+                        <form id="history-form" class="inline-form">
+                            <input type="text" id="ch_owner_id" placeholder="Enter Owner ID (e.g. O001)" required>
+                            <button type="submit" class="btn primary-btn">View History</button>
+                        </form>
+                    </div>
+                    <div class="table-container glass-panel hidden" id="history-table-wrapper">
+                        <table id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Manifest ID</th>
+                                    <th>Route</th>
+                                    <th>Type</th>
+                                    <th>Weight (T)</th>
+                                    <th>Freight ($)</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="vessel-report" class="view-section">
+                    <div class="card glass-panel interact-section">
+                        <form id="vessel-form" class="inline-form">
+                            <input type="text" id="vr_vessel_id" placeholder="Enter Vessel ID (e.g. V001)" required>
+                            <button type="submit" class="btn primary-btn">Generate Report</button>
+                        </form>
+                    </div>
+                    <div class="table-container glass-panel hidden" id="vessel-table-wrapper">
+                        <table id="vessel-table">
+                            <thead>
+                                <tr>
+                                    <th>Voyage ID</th>
+                                    <th>Route</th>
+                                    <th>Departure</th>
+                                    <th>Arrival</th>
+                                    <th>Cargo (T)</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="card glass-panel interact-section" style="margin-top: 20px;">
+                        <h3>Maintenance Check</h3>
+                        <form id="maintenance-form" class="inline-form">
+                            <input type="text" id="mt_vessel_id" placeholder="Vessel ID (e.g. V001)" required>
+                            <button type="submit" class="btn primary-btn">Check Maintenance</button>
+                        </form>
+                        <div id="mt-result" class="result-box hidden"></div>
+                    </div>
+                </section>
+
+                <section id="analytics" class="view-section">
+                    <div class="card glass-panel form-card" style="margin-bottom: 20px;">
+                        <h3>Route Bookings (By Year)</h3>
+                        <form id="route-bookings-form" class="inline-form">
+                            <input type="number" id="ab_year" placeholder="Year (e.g. 2026)" value="2026" required>
+                            <button type="submit" class="btn primary-btn">Analyze</button>
+                        </form>
+                        <div class="table-container hidden" style="margin-top: 16px;" id="route-bookings-table-wrapper">
+                            <table id="route-bookings-table">
+                                <thead>
+                                    <tr>
+                                        <th>Route</th>
+                                        <th>Month</th>
+                                        <th>Bookings</th>
+                                        <th>Weight (T)</th>
+                                        <th>Revenue ($)</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="grid-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="card glass-panel">
+                            <h3>Most Active Route</h3>
+                            <form id="most-active-form" class="inline-form">
+                                <input type="number" id="ma_year" placeholder="Year" value="2026" required>
+                                <button type="submit" class="btn primary-btn">Find</button>
+                            </form>
+                            <div id="ma-result" class="result-box hidden"></div>
+                        </div>
+
+                        <div class="card glass-panel">
+                            <h3>Route Revenue</h3>
+                            <form id="route-revenue-form" class="dynamic-form">
+                                <input type="text" id="rr_route" placeholder="Route ID (e.g. R001)" required>
+                                <input type="date" id="rr_start" required>
+                                <input type="date" id="rr_end" required>
+                                <button type="submit" class="btn primary-btn">Calculate</button>
+                            </form>
+                            <div id="rr-result" class="result-box hidden"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="admin" class="view-section">
+                    <div class="grid-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="card glass-panel">
+                            <h3>Schedule Voyage (Trigger Testing)</h3>
+                            <form id="schedule-voyage-form" class="dynamic-form">
+                                <input type="number" id="sv_voyage_id" placeholder="Voyage ID (e.g. 99)" required>
+                                <input type="text" id="sv_vessel_id" placeholder="Vessel ID (e.g. V001)" required>
+                                <input type="text" id="sv_route_id" placeholder="Route ID (e.g. R001)" required>
+                                <input type="text" id="sv_berth_id" placeholder="Berth ID (e.g. B01)" required>
+                                <input type="text" id="sv_captain" placeholder="Captain ID (e.g. E001)" required>
+                                <input type="text" id="sv_cocaptain" placeholder="Co-Captain ID (e.g. E002)" required>
+                                <input type="datetime-local" id="sv_dep" required>
+                                <input type="datetime-local" id="sv_arr" required>
+                                <select id="sv_status">
+                                    <option value="Scheduled">Scheduled</option>
+                                    <option value="Completed">Completed</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                                <button type="submit" class="btn primary-btn">Create Voyage</button>
+                            </form>
+                            <div id="sv-alert" class="alert-box hidden"></div>
+                        </div>
+
+                        <div class="dynamic-form" style="gap: 20px;">
+                            <div class="card glass-panel">
+                                <h3>Log Incident</h3>
+                                <form id="log-incident-form" class="dynamic-form">
+                                    <input type="number" id="li_voyage_id" placeholder="Voyage ID" required>
+                                    <input type="text" id="li_desc" placeholder="Incident Description" required>
+                                    <button type="submit" class="btn primary-btn">Log Incident</button>
+                                </form>
+                                <div id="li-alert" class="alert-box hidden"></div>
+                            </div>
+
+                            <div class="card glass-panel">
+                                <h3>Delete & Archive Voyage</h3>
+                                <form id="delete-voyage-form" class="inline-form">
+                                    <input type="number" id="dv_voyage_id" placeholder="Voyage ID" required>
+                                    <button type="submit" class="btn primary-btn">Delete</button>
+                                </form>
+                            </div>
+
+                            <div class="card glass-panel">
+                                <h3>Delete & Archive Cargo</h3>
+                                <form id="delete-cargo-form" class="inline-form">
+                                    <input type="number" id="dc_manifest_id" placeholder="Manifest ID" required>
+                                    <button type="submit" class="btn primary-btn">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
