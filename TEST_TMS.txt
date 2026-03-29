@@ -1,0 +1,390 @@
+
+STEP 1: VOYAGE INSERT (VALID)
+
+SQL> INSERT INTO voyage VALUES (
+  2      101, 'V101', 'R101', 'B101',
+  3      'C101', 'C102',
+  4      SYSDATE + 2,
+  5      SYSDATE + 6,
+  6      'Scheduled'
+  7  );
+
+1 row created.
+
+SQL>
+SQL> INSERT INTO voyage VALUES (
+  2      102, 'V101', 'R101', 'B102',
+  3      'C103', 'C104',
+  4      SYSDATE + 10,
+  5      SYSDATE + 15,
+  6      'Scheduled'
+  7  );
+
+1 row created.
+
+SQL>
+SQL> COMMIT;
+
+Commit complete.
+
+STEP 2: TRIGGER TESTS
+
+SQL> PROMPT --- Captain = Co-Captain (FAIL) ---
+> BEGIN
+--- Captain = Co-Captain (FAIL) -- BEGIN
+SQL> INSERT INTO voyage VALUES (
+  2      103, 'V101', 'R101', 'B103',
+  3      'C200', 'C200',
+  4      SYSDATE + 20,
+  5      SYSDATE + 25,
+  6      'Scheduled'
+  7  );
+INSERT INTO voyage VALUES (
+            *
+ERROR at line 1:
+ORA-20001: Captain and Co-Captain cannot be the same employee.
+ORA-06512: at "SYSTEM.CHECK_CAPTAIN_COCAPTAIN", line 3
+ORA-04088: error during execution of trigger 'SYSTEM.CHECK_CAPTAIN_COCAPTAIN'
+
+
+SQL> END;
+SP2-0042: unknown command "END" - rest of line ignored.
+SQL> /
+INSERT INTO voyage VALUES (
+            *
+ERROR at line 1:
+ORA-20001: Captain and Co-Captain cannot be the same employee.
+ORA-06512: at "SYSTEM.CHECK_CAPTAIN_COCAPTAIN", line 3
+ORA-04088: error during execution of trigger 'SYSTEM.CHECK_CAPTAIN_COCAPTAIN'
+
+
+SQL> PROMPT --- Vessel Overlap (FAIL) ---
+> BEGIN
+--- Vessel Overlap (FAIL) -- BEGIN
+SQL> INSERT INTO voyage VALUES (
+  2      104, 'V101', 'R101', 'B104',
+  3      'C201', 'C202',
+  4      SYSDATE + 3,
+  5      SYSDATE + 5,
+  6      'Scheduled'
+  7  );
+INSERT INTO voyage VALUES (
+            *
+ERROR at line 1:
+ORA-20005: Vessel V101 already has a voyage scheduled during this period.
+ORA-06512: at "SYSTEM.CHECK_VESSEL_OVERLAP", line 7
+ORA-04088: error during execution of trigger 'SYSTEM.CHECK_VESSEL_OVERLAP'
+
+
+SQL> END;
+SP2-0042: unknown command "END" - rest of line ignored.
+SQL> /
+INSERT INTO voyage VALUES (
+            *
+ERROR at line 1:
+ORA-20005: Vessel V101 already has a voyage scheduled during this period.
+ORA-06512: at "SYSTEM.CHECK_VESSEL_OVERLAP", line 7
+ORA-04088: error during execution of trigger 'SYSTEM.CHECK_VESSEL_OVERLAP'
+
+SQL> PROMPT --- Berth Conflict (FAIL) ---
+> BEGIN
+--- Berth Conflict (FAIL) -- BEGIN
+SQL> INSERT INTO voyage VALUES (
+  2      105, 'V101', 'R101', 'B101',
+  3      'C203', 'C204',
+  4      SYSDATE + 2,
+  5      SYSDATE + 6,
+  6      'Scheduled'
+  7  );
+INSERT INTO voyage VALUES (
+            *
+ERROR at line 1:
+ORA-20005: Vessel V101 already has a voyage scheduled during this period.
+ORA-06512: at "SYSTEM.CHECK_VESSEL_OVERLAP", line 7
+ORA-04088: error during execution of trigger 'SYSTEM.CHECK_VESSEL_OVERLAP'
+
+
+SQL> END;
+SP2-0042: unknown command "END" - rest of line ignored.
+SQL> /
+INSERT INTO voyage VALUES (
+            *
+ERROR at line 1:
+ORA-20005: Vessel V101 already has a voyage scheduled during this period.
+ORA-06512: at "SYSTEM.CHECK_VESSEL_OVERLAP", line 7
+ORA-04088: error during execution of trigger 'SYSTEM.CHECK_VESSEL_OVERLAP'
+
+
+SQL>
+SQL> PROMPT --- Maintenance Overdue (FAIL) ---
+> UPDATE maintenance
+--- Maintenance Overdue (FAIL) -- UPDATE maintenance
+SQL> SET date_conducted = SYSDATE - 300
+SP2-0735: unknown SET option beginning "date_condu..."
+SQL> WHERE vessel_id = 'V101';
+SP2-0734: unknown command beginning "WHERE vess..." - rest of line ignored.
+SQL>
+SQL> COMMIT;
+
+Commit complete.
+
+SQL>
+SQL> BEGIN
+  2  INSERT INTO voyage VALUES (
+  3      106, 'V101', 'R101', 'B106',
+  4      'C205', 'C206',
+  5      SYSDATE + 30,
+  6      SYSDATE + 40,
+  7      'Scheduled'
+  8  );
+  9  END;
+ 10  /
+
+PL/SQL procedure successfully completed.
+
+SQL>
+SQL> PROMPT --- Restore Maintenance ---
+> UPDATE maintenance
+--- Restore Maintenance -- UPDATE maintenance
+SQL> SET date_conducted = SYSDATE - 10
+SP2-0735: unknown SET option beginning "date_condu..."
+SQL> WHERE vessel_id = 'V101';
+SP2-0734: unknown command beginning "WHERE vess..." - rest of line ignored.
+SQL>
+SQL> COMMIT;
+
+Commit complete.
+
+STEP 3: CARGO BOOKING
+
+SQL> PROMPT --- VALID BOOKING ---
+> BEGIN
+--- VALID BOOKING -- BEGIN
+SQL> book_cargo(101, 'O101', 'Electronics', 15, 'P101', 'P102');
+SP2-0734: unknown command beginning "book_cargo..." - rest of line ignored.
+SQL> END;
+SP2-0042: unknown command "END" - rest of line ignored.
+SQL> /
+
+Commit complete.
+
+SQL>
+SQL> PROMPT --- INVALID BOOKING (same ports) ---
+> BEGIN
+--- INVALID BOOKING (same ports) -- BEGIN
+SQL> book_cargo(101, 'O101', 'Invalid', 5, 'P101', 'P101');
+SP2-0734: unknown command beginning "book_cargo..." - rest of line ignored.
+SQL> END;
+SP2-0042: unknown command "END" - rest of line ignored.
+SQL> /
+
+Commit complete.
+
+SQL> PROMPT STEP 4: DIRECT CARGO INSERTS
+STEP 4: DIRECT CARGO INSERTS
+SQL> PROMPT ========================================
+========================================
+SQL>
+SQL> INSERT INTO cargo_manifest VALUES (
+  2      DEFAULT, 101, 'O101', 'Furniture', 10,
+  3      'P101', 'P102', 30000, SYSDATE
+  4  );
+
+1 row created.
+
+SQL>
+SQL> INSERT INTO cargo_manifest VALUES (
+  2      DEFAULT, 102, 'O101', 'Clothing', 8,
+  3      'P101', 'P102', 20000, SYSDATE
+  4  );
+
+1 row created.
+
+SQL>
+SQL> COMMIT;
+
+Commit complete.
+
+SQL> PROMPT STEP 5: FUNCTION TESTING
+STEP 5: FUNCTION TESTING
+
+SQL> SELECT calculate_freight(10, 'R101') AS freight FROM dual;
+
+   FREIGHT
+----------
+        30
+
+SQL>
+SQL> SELECT get_total_cargo('R101', SYSDATE + 2) AS total_cargo FROM dual;
+
+TOTAL_CARGO
+-----------
+         10
+
+SQL>
+SQL> SELECT calculate_route_revenue('R101', SYSDATE-5, SYSDATE+20) AS revenue FROM dual;
+
+   REVENUE
+----------
+     50000
+
+SQL>
+SQL> SELECT most_active_route(2026) AS most_active FROM dual;
+
+MOST_ACTIVE
+--------------------------------------------------------------------------------
+R001
+
+SQL>
+SQL> SELECT months_since_last_maintenance('V101') AS months FROM dual;
+
+    MONTHS
+----------
+        .6
+
+STEP 6: PROCEDURE TESTING
+
+SQL> PROMPT --- Cargo History ---
+> BEGIN
+--- Cargo History -- BEGIN
+SQL> display_cargo_history('O101');
+SP2-0734: unknown command beginning "display_ca..." - rest of line ignored.
+SQL> END;
+SP2-0042: unknown command "END" - rest of line ignored.
+SQL> /
+
+    MONTHS
+----------
+        .6
+
+SQL>
+SQL> PROMPT --- Vessel Report ---
+> BEGIN
+--- Vessel Report -- BEGIN
+SQL> generate_vessel_report('V101');
+SP2-0734: unknown command beginning "generate_v..." - rest of line ignored.
+SQL> END;
+SP2-0042: unknown command "END" - rest of line ignored.
+SQL> /
+
+    MONTHS
+----------
+        .6
+
+SQL>
+SQL> PROMPT --- Bookings by Route ---
+> BEGIN
+--- Bookings by Route -- BEGIN
+SQL> display_bookings_by_route(2026);
+SP2-0734: unknown command beginning "display_bo..." - rest of line ignored.
+SQL> END;
+SP2-0042: unknown command "END" - rest of line ignored.
+SQL> /
+
+    MONTHS
+----------
+        .6
+
+SQL>
+SQL> PROMPT --- Next Available Voyage ---
+> BEGIN
+--- Next Available Voyage -- BEGIN
+SQL> next_available_voyage('P101', 'P102');
+SP2-0734: unknown command beginning "next_avail..." - rest of line ignored.
+SQL> END;
+SP2-0042: unknown command "END" - rest of line ignored.
+SQL> /
+
+    MONTHS
+----------
+        .6
+
+SQL> PROMPT STEP 7: INCIDENT TRIGGER TEST
+STEP 7: INCIDENT TRIGGER TEST
+
+SQL> INSERT INTO incident (voyage_id, description)
+  2  VALUES (101, 'Engine breakdown');
+
+1 row created.
+
+
+SQL> COMMIT;
+
+Commit complete.
+
+SQL> SELECT voyage_id, status FROM voyage WHERE vessel_id = 'V101';
+
+ VOYAGE_ID STATUS
+---------- --------------------
+       102 Scheduled
+       101 Cancelled
+       106 Scheduled
+
+SQL> PROMPT STEP 8: ARCHIVE TESTING
+STEP 8: ARCHIVE TESTING
+
+SQL> PROMPT --- Delete Cargo (Archive) ---
+> DELETE FROM cargo_manifest WHERE voyage_id = 101;
+--- Delete Cargo (Archive) -- DELETE FROM cargo_manifest WHERE voyage_id = 101
+SQL>
+SQL> SELECT * FROM cargo_manifest_archive;
+
+MANIFEST_ID ARCHIVED_  VOYAGE_ID OWNER
+----------- --------- ---------- -----
+CARGO_TYPE                                         WEIGHT_TONNES ORIGI DESTI
+-------------------------------------------------- ------------- ----- -----
+FREIGHT_CHARGE
+--------------
+          1 29-MAR-26          1 O001
+Dry Bulk                                                     .08 P001  P002
+             0
+
+SQL> PROMPT --- Delete Voyage (Archive) ---
+> DELETE FROM voyage WHERE voyage_id = 102;
+--- Delete Voyage (Archive) -- DELETE FROM voyage WHERE voyage_id = 102
+SQL>
+SQL> SELECT * FROM voyage_archive;
+
+ VOYAGE_ID ARCHIVED_ VESSEL_I ROUTE BERTH CAPTA CO_CA DEPARTURE ARRIVAL_D
+---------- --------- -------- ----- ----- ----- ----- --------- ---------
+STATUS
+--------------------
+        10 29-MAR-26 V001     R001  B010  C010  C011  17-MAY-26 27-MAY-26
+Scheduled
+
+
+SQL>
+SQL> COMMIT;
+
+Commit complete.
+
+SQL> PROMPT FINAL DATA CHECK
+FINAL DATA CHECK
+
+SQL> SELECT * FROM voyage WHERE vessel_id = 'V101';
+
+ VOYAGE_ID VESSEL_I ROUTE BERTH CAPTA CO_CA DEPARTURE ARRIVAL_D
+---------- -------- ----- ----- ----- ----- --------- ---------
+STATUS
+--------------------
+       102 V101     R101  B102  C103  C104  08-APR-26 13-APR-26
+Scheduled
+
+       101 V101     R101  B101  C101  C102  31-MAR-26 04-APR-26
+Cancelled
+
+       106 V101     R101  B106  C205  C206  28-APR-26 08-MAY-26
+Scheduled
+
+
+SQL> SELECT * FROM cargo_manifest WHERE owner_id = 'O101';
+
+MANIFEST_ID  VOYAGE_ID OWNER CARGO_TYPE
+----------- ---------- ----- --------------------------------------------------
+WEIGHT_TONNES ORIGI DESTI FREIGHT_CHARGE BOOKING_D
+------------- ----- ----- -------------- ---------
+         25        101 O101  Furniture
+           10 P101  P102           30000 29-MAR-26
+
+         26        102 O101  Clothing
+            8 P101  P102           20000 29-MAR-26
